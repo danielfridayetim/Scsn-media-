@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCSN Media — University of Uyo Chapter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --ink:#0B1F17;
+    --forest:#1B4332;
+    --leaf:#2D6A4F;
+    --reax:#52B788;
+    --reax-bright:#74C69D;
+    --paper:#F8FAF9;
+    --white:#FFFFFF;
+    --line: rgba(27,67,50,0.15);
+    --shadow: 0 10px 30px -12px rgba(11,31,23,0.25);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'IBM Plex Sans', sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.6;
+  }
+  h1,h2,h3,.display{
+    font-family:'Space Grotesk', sans-serif;
+    letter-spacing:-0.01em;
+  }
+  .mono{ font-family:'IBM Plex Mono', monospace; letter-spacing:0.02em; }
+  a{ color:inherit; text-decoration:none; }
+  img{ max-width:100%; display:block; }
+  .wrap{ max-width:1120px; margin:0 auto; padding:0 24px; }
+
+  /* Hexagon motif — nods to the benzene ring, used as a structural device throughout */
+  .hex{
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  }
+
+  /* Header */
+  header{
+    position:sticky; top:0; z-index:50;
+    background:rgba(248,250,249,0.9);
+    backdrop-filter: blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 24px;
+  }
+  .brand{ display:flex; align-items:center; gap:10px; font-weight:700; font-size:1.05rem; }
+  .brand .mark{
+    width:30px; height:30px; background:var(--leaf);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--white); font-family:'IBM Plex Mono'; font-weight:600; font-size:0.75rem;
+  }
+  .brand small{ display:block; font-family:'IBM Plex Mono'; font-weight:400; font-size:0.65rem; color:var(--leaf); letter-spacing:0.08em; }
+  nav.links{ display:flex; gap:28px; font-size:0.92rem; font-weight:500; }
+  nav.links a{ color:var(--forest); opacity:0.75; transition:opacity .2s; }
+  nav.links a:hover{ opacity:1; }
+  .admin-btn{
+    font-family:'IBM Plex Mono'; font-size:0.75rem; padding:9px 16px;
+    border:1px solid var(--forest); color:var(--forest); background:transparent;
+    cursor:pointer; transition:all .2s;
+  }
+  .admin-btn:hover{ background:var(--forest); color:var(--white); }
+  .menu-toggle{ display:none; background:none; border:none; cursor:pointer; }
+
+  /* Hero */
+  .hero{
+    position:relative; overflow:hidden;
+    padding:88px 0 96px;
+    background: linear-gradient(180deg, var(--paper) 0%, #EEF5F1 100%);
+  }
+  .hero-grid{
+    display:grid; grid-template-columns: 1.1fr 0.9fr; gap:48px; align-items:center;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono'; font-size:0.75rem; color:var(--leaf);
+    text-transform:uppercase; letter-spacing:0.14em; margin-bottom:18px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{ content:''; width:22px; height:2px; background:var(--reax); }
+  .hero h1{
+    font-size:clamp(2.4rem, 4.6vw, 3.6rem);
+    font-weight:700; color:var(--forest); line-height:1.06;
+  }
+  .hero h1 em{ font-style:normal; color:var(--reax); }
+  .hero p.lede{
+    margin-top:22px; font-size:1.08rem; max-width:46ch; color:#28453a;
+  }
+  .hero-cta{ margin-top:32px; display:flex; gap:14px; flex-wrap:wrap; }
+  .btn{
+    padding:13px 24px; font-weight:600; font-size:0.92rem; cursor:pointer; border:none;
+    display:inline-flex; align-items:center; gap:8px; transition:transform .15s, box-shadow .15s;
+  }
+  .btn-primary{ background:var(--forest); color:var(--white); }
+  .btn-primary:hover{ transform:translateY(-2px); box-shadow:var(--shadow); }
+  .btn-ghost{ background:transparent; color:var(--forest); border:1px solid var(--line); }
+  .btn-ghost:hover{ border-color:var(--forest); }
+
+  /* Hero visual: benzene ring lattice */
+  .lattice{ position:relative; height:340px; }
+  .lattice svg{ width:100%; height:100%; }
+  .ring{ fill:none; stroke:var(--leaf); stroke-width:2; opacity:0.85; }
+  .ring.bright{ stroke:var(--reax); }
+  .node{ fill:var(--reax); }
+
+  /* Section shell */
+  section.block{ padding:76px 0; border-top:1px solid var(--line); }
+  .block-head{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    margin-bottom:40px; gap:20px; flex-wrap:wrap;
+  }
+  .block-head h2{ font-size:1.9rem; color:var(--forest); }
+  .block-num{ font-family:'IBM Plex Mono'; font-size:0.78rem; color:var(--reax); }
+  .block-sub{ color:#4b6459; font-size:0.95rem; max-width:52ch; margin-top:6px; }
+
+  /* News */
+  .news-list{ display:flex; flex-direction:column; }
+  .news-item{
+    display:grid; grid-template-columns:120px 1fr auto; gap:24px; align-items:start;
+    padding:22px 0; border-bottom:1px solid var(--line);
+  }
+  .news-item:first-child{ padding-top:0; }
+  .news-date{ font-family:'IBM Plex Mono'; font-size:0.78rem; color:var(--leaf); padding-top:3px; }
+  .news-item h3{ font-size:1.08rem; font-weight:600; color:var(--ink); margin-bottom:6px; }
+  .news-item p{ font-size:0.92rem; color:#4b6459; }
+  .tag{
+    font-family:'IBM Plex Mono'; font-size:0.68rem; padding:4px 10px;
+    background:#E4F2E9; color:var(--leaf); align-self:start; white-space:nowrap;
+  }
+
+  /* Gallery */
+  .gallery-grid{
+    display:grid; grid-template-columns:repeat(4, 1fr); gap:16px;
+  }
+  .gcell{
+    aspect-ratio:1; background:linear-gradient(135deg, var(--leaf), var(--forest));
+    position:relative; overflow:hidden; cursor:pointer;
+  }
+  .gcell::after{
+    content: attr(data-label);
+    position:absolute; left:12px; bottom:12px; color:var(--white);
+    font-family:'IBM Plex Mono'; font-size:0.68rem; opacity:0.9;
+  }
+  .gcell::before{
+    content:''; position:absolute; inset:0;
+    background: repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0 2px, transparent 2px 14px);
+  }
+  .gcell:nth-child(3n){ background:linear-gradient(135deg, var(--reax), var(--leaf)); }
+  .gcell:nth-child(5n){ background:linear-gradient(135deg, var(--forest), #0B1F17); }
+
+  /* Videos */
+  .video-row{ display:grid; grid-template-columns:repeat(3, 1fr); gap:24px; }
+  .vcard{ background:var(--white); border:1px solid var(--line); }
+  .vthumb{
+    aspect-ratio:16/9; background:var(--forest);
+    display:flex; align-items:center; justify-content:center; position:relative;
+  }
+  .play{
+    width:52px; height:52px; border-radius:50%; background:rgba(255,255,255,0.15);
+    display:flex; align-items:center; justify-content:center;
+    border:1px solid rgba(255,255,255,0.4);
+  }
+  .play::after{
+    content:''; width:0; height:0; margin-left:3px;
+    border-top:9px solid transparent; border-bottom:9px solid transparent;
+    border-left:14px solid var(--white);
+  }
+  .vcard .vbody{ padding:16px 18px; }
+  .vcard h4{ font-size:0.95rem; font-weight:600; }
+  .vcard span{ font-family:'IBM Plex Mono'; font-size:0.72rem; color:var(--leaf); }
+
+  /* Files */
+  .file-list{ border-top:1px solid var(--line); }
+  .file-row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 0; border-bottom:1px solid var(--line); font-size:0.92rem;
+  }
+  .file-left{ display:flex; align-items:center; gap:14px; }
+  .file-icon{
+    width:34px; height:34px; background:#E4F2E9; color:var(--leaf);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'IBM Plex Mono'; font-size:0.65rem; font-weight:600;
+  }
+  .file-meta{ font-family:'IBM Plex Mono'; font-size:0.72rem; color:#7a9188; }
+  .file-dl{ font-family:'IBM Plex Mono'; font-size:0.75rem; color:var(--forest); border-bottom:1px solid var(--forest); }
+
+  /* About */
+  .about-grid{ display:grid; grid-template-columns:1fr 1fr; gap:56px; align-items:center; }
+  .about-grid p{ color:#4b6459; margin-top:14px; }
+  .stat-row{ display:flex; gap:36px; margin-top:28px; }
+  .stat b{ display:block; font-family:'Space Grotesk'; font-size:1.7rem; color:var(--forest); }
+  .stat span{ font-family:'IBM Plex Mono'; font-size:0.7rem; color:var(--leaf); }
+
+  footer{
+    background:var(--forest); color:var(--white); padding:48px 0 28px; margin-top:20px;
+  }
+  .foot-grid{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:24px; }
+  footer h4{ font-family:'Space Grotesk'; margin-bottom:10px; }
+  footer p, footer a{ color:rgba(255,255,255,0.7); font-size:0.88rem; }
+  .foot-bottom{
+    margin-top:36px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.15);
+    font-family:'IBM Plex Mono'; font-size:0.72rem; color:rgba(255,255,255,0.55);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
+  }
+
+  /* Admin modal */
+  .overlay{
+    position:fixed; inset:0; background:rgba(11,31,23,0.55);
+    display:none; align-items:center; justify-content:center; z-index:100; padding:20px;
+  }
+  .overlay.open{ display:flex; }
+  .modal{
+    background:var(--white); width:100%; max-width:380px; padding:32px;
+    box-shadow:0 24px 60px -12px rgba(11,31,23,0.4);
+  }
+  .modal h3{ color:var(--forest); font-size:1.2rem; margin-bottom:6px; }
+  .modal p.hint{ font-size:0.85rem; color:#7a9188; margin-bottom:20px; }
+  .field{ margin-bottom:16px; }
+  .field label{ display:block; font-family:'IBM Plex Mono'; font-size:0.72rem; color:var(--leaf); margin-bottom:6px; }
+  .field input{
+    width:100%; padding:11px 12px; border:1px solid var(--line); background:var(--paper);
+    font-family:'IBM Plex Sans'; font-size:0.92rem;
+  }
+  .field input:focus{ outline:2px solid var(--reax); outline-offset:1px; }
+  .modal-actions{ display:flex; gap:10px; margin-top:22px; }
+  .modal-actions .btn{ flex:1; justify-content:center; }
+  .close-x{ position:absolute; top:14px; right:16px; background:none; border:none; cursor:pointer; color:var(--leaf); font-size:1.1rem; }
+  .modal{ position:relative; }
+  .error-msg{ font-family:'IBM Plex Mono'; font-size:0.76rem; color:#B23A48; margin-top:10px; display:none; }
+  .error-msg.show{ display:block; }
+  .admin-panel{ display:none; }
+  .admin-panel.show{ display:block; }
+  .admin-panel textarea{
+    width:100%; min-height:90px; padding:11px 12px; border:1px solid var(--line);
+    background:var(--paper); font-family:'IBM Plex Sans'; font-size:0.9rem; resize:vertical;
+  }
+  .note{
+    background:#FFF8E8; border:1px solid #F0D896; color:#7A5C10;
+    font-size:0.8rem; padding:10px 12px; margin-top:14px; font-family:'IBM Plex Mono';
+    line-height:1.5;
+  }
+
+  @media (max-width: 860px){
+    nav.links{ display:none; }
+    .menu-toggle{ display:block; }
+    .hero-grid{ grid-template-columns:1fr; }
+    .lattice{ height:220px; order:-1; }
+    .gallery-grid{ grid-template-columns:repeat(2,1fr); }
+    .video-row{ grid-template-columns:1fr; }
+    .about-grid{ grid-template-columns:1fr; }
+    .news-item{ grid-template-columns:1fr; gap:6px; }
+    .foot-grid{ flex-direction:column; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    *{ transition:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav wrap">
+    <div class="brand">
+      <div class="mark hex">Cn</div>
+      <div>
+        SCSN Media
+        <small>UNIUYO CHAPTER</small>
+      </div>
+    </div>
+    <nav class="links">
+      <a href="#news">News</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#videos">Videos</a>
+      <a href="#files">Files</a>
+      <a href="#about">About</a>
+    </nav>
+    <button class="admin-btn" onclick="openAdmin()">ADMIN LOGIN</button>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow">Students' Chemical Society of Nigeria — Uyo</div>
+      <h1>The record of<br>everything we<br><em>synthesize</em> together.</h1>
+      <p class="lede">Photos, videos, news and resources from SCSN events, workshops and outreach — kept in one place, maintained by the Media Team.</p>
+      <div class="hero-cta">
+        <a href="#gallery" class="btn btn-primary">Browse the gallery</a>
+        <a href="#news" class="btn btn-ghost">Latest news</a>
+      </div>
+    </div>
+    <div class="lattice">
+      <svg viewBox="0 0 300 260" preserveAspectRatio="xMidYMid meet">
+        <polygon class="ring bright" points="150,20 195,45 195,95 150,120 105,95 105,45"/>
+        <polygon class="ring" points="150,120 195,145 195,195 150,220 105,195 105,145"/>
+        <polygon class="ring" points="60,70 105,95 105,145 60,170 15,145 15,95"/>
+        <polygon class="ring" points="240,70 285,95 285,145 240,170 195,145 195,95"/>
+        <circle class="node" cx="150" cy="20" r="4"/>
+        <circle class="node" cx="150" cy="120" r="4"/>
+        <circle class="node" cx="150" cy="220" r="4"/>
+        <circle class="node" cx="105" cy="95" r="4"/>
+        <circle class="node" cx="195" cy="95" r="4"/>
+        <circle class="node" cx="60" cy="70" r="3.5"/>
+        <circle class="node" cx="240" cy="70" r="3.5"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="news">
+  <div class="wrap">
+    <div class="block-head">
+      <div>
+        <span class="block-num">01 / NEWS</span>
+        <h2>From the society</h2>
+      </div>
+      <p class="block-sub">Updates from executives, department events, and society announcements.</p>
+    </div>
+    <div class="news-list" id="newsList">
+      <p class="mono" style="font-size:0.8rem; color:#7a9188;">Loading news…</p>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="gallery">
+  <div class="wrap">
+    <div class="block-head">
+      <div>
+        <span class="block-num">02 / GALLERY</span>
+        <h2>Photos</h2>
+      </div>
+      <p class="block-sub">Moments from workshops, lab sessions, and society events.</p>
+    </div>
+    <div class="gallery-grid" id="galleryGrid">
+      <p class="mono" style="font-size:0.8rem; color:#7a9188;">Loading photos…</p>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="videos">
+  <div class="wrap">
+    <div class="block-head">
+      <div>
+        <span class="block-num">03 / VIDEOS</span>
+        <h2>Watch</h2>
+      </div>
+      <p class="block-sub">Event recaps and highlights from the Media Team.</p>
+    </div>
+    <div class="video-row" id="videoRow">
+      <p class="mono" style="font-size:0.8rem; color:#7a9188;">Loading videos…</p>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="files">
+  <div class="wrap">
+    <div class="block-head">
+      <div>
+        <span class="block-num">04 / FILES</span>
+        <h2>Resources</h2>
+      </div>
+      <p class="block-sub">Handouts, past questions, and society documents.</p>
+    </div>
+    <div class="file-list" id="fileList">
+      <p class="mono" style="font-size:0.8rem; color:#7a9188; padding:16px 0;">Loading files…</p>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="about">
+  <div class="wrap about-grid">
+    <div>
+      <span class="block-num">05 / ABOUT</span>
+      <h2 style="margin-top:8px;">Students' Chemical Society of Nigeria</h2>
+      <p>The University of Uyo chapter brings together chemistry students for academic development, lab exposure, and community outreach. The Media Team documents and shares that work.</p>
+      <div class="stat-row">
+        <div class="stat"><b>SCSN</b><span>UNIUYO CHAPTER</span></div>
+        <div class="stat"><b>2026</b><span>SESSION</span></div>
+        <div class="stat"><b>4</b><span>CONTENT CATEGORIES</span></div>
+      </div>
+    </div>
+    <div class="lattice">
+      <svg viewBox="0 0 300 260" preserveAspectRatio="xMidYMid meet">
+        <polygon class="ring" points="150,20 195,45 195,95 150,120 105,95 105,45"/>
+        <polygon class="ring bright" points="150,120 195,145 195,195 150,220 105,195 105,145"/>
+        <polygon class="ring" points="60,70 105,95 105,145 60,170 15,145 15,95"/>
+        <circle class="node" cx="150" cy="120" r="4"/>
+        <circle class="node" cx="105" cy="195" r="4"/>
+        <circle class="node" cx="195" cy="195" r="4"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <h4>SCSN Media</h4>
+        <p>Students' Chemical Society of Nigeria<br>University of Uyo Chapter</p>
+      </div>
+      <div>
+        <h4>Section</h4>
+        <p><a href="#news">News</a><br><a href="#gallery">Gallery</a><br><a href="#videos">Videos</a><br><a href="#files">Files</a></p>
+      </div>
+      <div>
+        <h4>Media Team</h4>
+        <p>Content curated and maintained by SCSN's Media Team.</p>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>SCSN MEDIA — UNIUYO</span>
+      <span>ADMIN-EDITED CONTENT ONLY</span>
+    </div>
+  </div>
+</footer>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <button class="close-x" onclick="closeAdmin()">✕</button>
+
+    <div id="loginView">
+      <h3>Admin Login</h3>
+      <p class="hint">Media Team access only.</p>
+      <div class="field">
+        <label>EMAIL</label>
+        <input type="email" id="emailInput" placeholder="admin@scsn.org">
+      </div>
+      <div class="field">
+        <label>PASSWORD</label>
+        <input type="password" id="pwInput" placeholder="Enter admin password">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeAdmin()">Cancel</button>
+        <button class="btn btn-primary" onclick="tryLogin()">Log in</button>
+      </div>
+      <p class="error-msg" id="errMsg">Incorrect email or password.</p>
+      <p class="note" id="configNote">This uses real Supabase authentication — see SETUP.md to create the admin account and connect this site to your backend.</p>
+    </div>
+
+    <div id="adminView" class="admin-panel">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3>Media Team panel</h3>
+        <button class="btn btn-ghost" style="padding:6px 12px; font-size:0.75rem;" onclick="logout()">Log out</button>
+      </div>
+
+      <p class="hint" style="margin-top:14px;">Post a news update</p>
+      <div class="field">
+        <label>TITLE</label>
+        <input type="text" id="postTitle" placeholder="e.g. Chemistry Week 2026 dates announced">
+      </div>
+      <div class="field">
+        <label>SUMMARY</label>
+        <textarea id="postBody" placeholder="Short summary..."></textarea>
+      </div>
+      <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="postUpdate()">Publish news</button>
+
+      <hr style="margin:22px 0; border:none; border-top:1px solid var(--line);">
+
+      <p class="hint">Upload a photo</p>
+      <div class="field"><input type="file" id="photoInput" accept="image/*"></div>
+      <button class="btn btn-ghost" style="width:100%; justify-content:center;" onclick="uploadMedia('photo','photoInput')">Upload photo</button>
+
+      <hr style="margin:22px 0; border:none; border-top:1px solid var(--line);">
+
+      <p class="hint">Upload a video</p>
+      <div class="field"><input type="file" id="videoInput" accept="video/*"></div>
+      <button class="btn btn-ghost" style="width:100%; justify-content:center;" onclick="uploadMedia('video','videoInput')">Upload video</button>
+
+      <hr style="margin:22px 0; border:none; border-top:1px solid var(--line);">
+
+      <p class="hint">Upload a file</p>
+      <div class="field"><input type="file" id="fileInput"></div>
+      <button class="btn btn-ghost" style="width:100%; justify-content:center;" onclick="uploadMedia('file','fileInput')">Upload file</button>
+
+      <p class="error-msg" id="uploadMsg" style="color:var(--leaf);"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---------------------------------------------------------------
+  // CONNECT THIS TO YOUR OWN SUPABASE PROJECT — see SETUP.md
+  // ---------------------------------------------------------------
+  const SUPABASE_URL = "https://rpqxxfxdbwhvemmjqwwg.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_5Gvc0RrI5ilhtLT5-Ed7pQ_FPEB6lzZ";
+  const BUCKET = "media";
+
+  const configured = !SUPABASE_URL.startsWith("YOUR_") && !SUPABASE_ANON_KEY.startsWith("YOUR_");
+  const supabase = configured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+  if(!configured){
+    document.getElementById('configNote').innerHTML =
+      "⚠️ This site isn't connected to a backend yet. Follow SETUP.md, then paste your Supabase URL and key at the top of the &lt;script&gt; in index.html.";
+  }
+
+  // ---------- Admin modal ----------
+  function openAdmin(){
+    document.getElementById('overlay').classList.add('open');
+    document.getElementById('errMsg').classList.remove('show');
+    checkSession();
+  }
+  function closeAdmin(){
+    document.getElementById('overlay').classList.remove('open');
+  }
+  document.getElementById('overlay').addEventListener('click', (e)=>{
+    if(e.target.id === 'overlay') closeAdmin();
+  });
+
+  async function checkSession(){
+    if(!configured) return;
+    const { data } = await supabase.auth.getSession();
+    if(data.session){
+      document.getElementById('loginView').style.display = 'none';
+      document.getElementById('adminView').classList.add('show');
+    } else {
+      document.getElementById('loginView').style.display = 'block';
+      document.getElementById('adminView').classList.remove('show');
+    }
+  }
+
+  async function tryLogin(){
+    if(!configured){ document.getElementById('errMsg').textContent = 'Backend not connected yet — see SETUP.md.'; document.getElementById('errMsg').classList.add('show'); return; }
+    const email = document.getElementById('emailInput').value.trim();
+    const password = document.getElementById('pwInput').value;
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if(error){
+      document.getElementById('errMsg').textContent = error.message;
+      document.getElementById('errMsg').classList.add('show');
+      return;
+    }
+    document.getElementById('loginView').style.display = 'none';
+    document.getElementById('adminView').classList.add('show');
+  }
+
+  async function logout(){
+    if(configured) await supabase.auth.signOut();
+    closeAdmin();
+  }
+
+  // ---------- News ----------
+  async function loadNews(){
+    const list = document.getElementById('newsList');
+    if(!configured){ list.innerHTML = '<p class="mono" style="font-size:0.8rem;color:#7a9188;">Connect Supabase (see SETUP.md) to load news.</p>'; return; }
+    const { data, error } = await supabase.from('news_posts').select('*').order('created_at', { ascending:false }).limit(20);
+    if(error || !data || data.length === 0){
+      list.innerHTML = '<p class="mono" style="font-size:0.8rem;color:#7a9188;">No news posted yet.</p>';
+      return;
+    }
+    list.innerHTML = data.map(post => {
+      const d = new Date(post.created_at);
+      const month = d.toLocaleString('en-US', {month:'short'}).toUpperCase();
+      return `<div class="news-item">
+        <div class="news-date mono">${month} ${d.getFullYear()}</div>
+        <div><h3>${escapeHtml(post.title)}</h3><p>${escapeHtml(post.body || '')}</p></div>
+        <span class="tag">NEWS</span>
+      </div>`;
+    }).join('');
+  }
+
+  async function postUpdate(){
+    const title = document.getElementById('postTitle').value.trim();
+    const body = document.getElementById('postBody').value.trim();
+    if(!title || !configured) return;
+    const { error } = await supabase.from('news_posts').insert({ title, body });
+    const msg = document.getElementById('uploadMsg');
+    if(error){ msg.textContent = error.message; msg.style.color = '#B23A48'; }
+    else { msg.textContent = 'Published.'; msg.style.color = 'var(--leaf)'; document.getElementById('postTitle').value=''; document.getElementById('postBody').value=''; loadNews(); }
+  }
+
+  // ---------- Gallery / Videos / Files ----------
+  async function loadMedia(){
+    const gallery = document.getElementById('galleryGrid');
+    const videos = document.getElementById('videoRow');
+    const files = document.getElementById('fileList');
+    if(!configured){
+      const msg = '<p class="mono" style="font-size:0.8rem;color:#7a9188;">Connect Supabase (see SETUP.md) to load this.</p>';
+      gallery.innerHTML = msg; videos.innerHTML = msg; files.innerHTML = msg;
+      return;
+    }
+    const { data, error } = await supabase.from('media_items').select('*').order('created_at', { ascending:false });
+    if(error || !data){ return; }
+
+    const photos = data.filter(m => m.type === 'photo');
+    const vids = data.filter(m => m.type === 'video');
+    const docs = data.filter(m => m.type === 'file');
+
+    gallery.innerHTML = photos.length ? photos.map(p => {
+      const url = supabase.storage.from(BUCKET).getPublicUrl(p.storage_path).data.publicUrl;
+      return `<div class="gcell" style="background:none;"><img src="${url}" alt="${escapeHtml(p.title||'')}" style="width:100%;height:100%;object-fit:cover;"></div>`;
+    }).join('') : '<p class="mono" style="font-size:0.8rem;color:#7a9188;">No photos yet.</p>';
+
+    videos.innerHTML = vids.length ? vids.map(v => {
+      const url = supabase.storage.from(BUCKET).getPublicUrl(v.storage_path).data.publicUrl;
+      return `<div class="vcard"><video src="${url}" controls style="width:100%;aspect-ratio:16/9;background:#000;"></video>
+        <div class="vbody"><h4>${escapeHtml(v.title||'Untitled')}</h4></div></div>`;
+    }).join('') : '<p class="mono" style="font-size:0.8rem;color:#7a9188;">No videos yet.</p>';
+
+    files.innerHTML = docs.length ? docs.map(f => {
+      const url = supabase.storage.from(BUCKET).getPublicUrl(f.storage_path).data.publicUrl;
+      const ext = (f.storage_path.split('.').pop() || 'FILE').toUpperCase().slice(0,4);
+      return `<div class="file-row"><div class="file-left"><div class="file-icon">${ext}</div><div>${escapeHtml(f.title||'File')}</div></div>
+        <div class="file-meta"><a href="${url}" class="file-dl" target="_blank">Download</a></div></div>`;
+    }).join('') : '<p class="mono" style="font-size:0.8rem;color:#7a9188;padding:16px 0;">No files yet.</p>';
+  }
+
+  async function uploadMedia(type, inputId){
+    const msg = document.getElementById('uploadMsg');
+    if(!configured){ msg.textContent = 'Backend not connected — see SETUP.md.'; msg.style.color = '#B23A48'; return; }
+    const input = document.getElementById(inputId);
+    const file = input.files[0];
+    if(!file){ msg.textContent = 'Choose a file first.'; msg.style.color = '#B23A48'; return; }
+
+    const path = `${type}s/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9_.-]/g,'_')}`;
+    const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, file);
+    if(upErr){ msg.textContent = upErr.message; msg.style.color = '#B23A48'; return; }
+
+    const { error: dbErr } = await supabase.from('media_items').insert({ type, title: file.name, storage_path: path });
+    if(dbErr){ msg.textContent = dbErr.message; msg.style.color = '#B23A48'; return; }
+
+    msg.textContent = 'Uploaded.'; msg.style.color = 'var(--leaf)';
+    input.value = '';
+    loadMedia();
+  }
+
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  loadNews();
+  loadMedia();
+</script>
+
+</body>
+</html>
+
