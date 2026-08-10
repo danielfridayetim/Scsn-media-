@@ -282,8 +282,8 @@
       <a href="#videos">Videos</a>
       <a href="#files">Files</a>
       <a href="#about">About</a>
-    </const { error } = await supabase.auth.signInWithPassword({ email, passwor
-      <button class="admin-btn" id="adminLoginBtn">ADMIN LOGIN</button>
+    </nav>
+    <button class="admin-btn" onclick="openAdmin()">ADMIN LOGIN</button>
   </div>
 </header>
 
@@ -641,8 +641,6 @@
   loadNews();
   loadMedia();
 </script>
-<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-<script>eruda.init();</script>
+
 </body>
 </html>
-
